@@ -30,16 +30,17 @@ process SENTIEON_BWAMEM {
 
     """
     ${sentieonLicense}
-    export bwt_max_mem="${(task.memory * 0.9).toGiga()}G"
+    #export bwt_max_mem="${(task.memory * 0.9).toGiga()}G"
+    export bwt_max_mem="\$(( FovusOptVcpuMem * 9 / 10 ))G"
 
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
     sentieon bwa mem \\
         ${args} \\
-        -t ${task.cpus} \\
+        -t \${FovusOptVcpu} \\
         \$INDEX \\
         ${reads} \\
-        | sentieon util sort -r ${fasta} -t ${task.cpus} -o ${prefix} --sam2bam -
+        | sentieon util sort -r ${fasta} -t \${FovusOptVcpu} -o ${prefix} --sam2bam -
 
     # Delete *.bai file if prefix ends with .cram
     if [[ "${prefix}" == *.cram ]]; then

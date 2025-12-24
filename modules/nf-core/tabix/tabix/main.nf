@@ -22,7 +22,7 @@ process TABIX_TABIX {
     def args = task.ext.args ?: ''
     """
     tabix \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         $args \\
         $tab
 

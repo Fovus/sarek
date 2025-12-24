@@ -24,7 +24,7 @@ process SAMTOOLS_STATS {
     """
     samtools \\
         stats \\
-        --threads ${task.cpus} \\
+        --threads \${FovusOptVcpu} \\
         ${reference} \\
         ${input} \\
         > ${prefix}.stats

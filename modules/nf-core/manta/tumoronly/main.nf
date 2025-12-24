@@ -40,7 +40,7 @@ process MANTA_TUMORONLY {
         $options_manta \\
         $args
 
-    python manta/runWorkflow.py -m local -j $task.cpus
+    python manta/runWorkflow.py -m local -j \$FovusOptVcpu
 
     mv manta/results/variants/candidateSmallIndels.vcf.gz \\
         ${prefix}.candidate_small_indels.vcf.gz

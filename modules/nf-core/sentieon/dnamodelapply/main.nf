@@ -32,7 +32,7 @@ process SENTIEON_DNAMODELAPPLY {
     ${sentieonLicense}
 
     sentieon driver \\
-        -t ${task.cpus} \\
+        -t \${FovusOptVcpu} \\
         -r ${fasta} \\
         ${args} \\
         --algo DNAModelApply \\

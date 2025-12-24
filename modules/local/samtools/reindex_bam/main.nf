@@ -31,7 +31,7 @@ process SAMTOOLS_REINDEX_BAM {
     samtools \\
         view \\
         --header-only \\
-        --threads ${task.cpus} \\
+        --threads \${FovusOptVcpu} \\
         -O BAM \\
         -o "${meta.id}.reindex.bam" \\
         ${reference} \\
@@ -42,7 +42,7 @@ process SAMTOOLS_REINDEX_BAM {
         view \\
         --uncompressed \\
         --write-index \\
-        --threads ${task.cpus} \\
+        --threads \${FovusOptVcpu} \\
         -O BAM \\
         -o "/dev/null##idx##${meta.id}.reindex.bam.bai" \\
         ${reference} \\

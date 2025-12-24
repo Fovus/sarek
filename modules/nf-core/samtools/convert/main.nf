@@ -29,13 +29,13 @@ process SAMTOOLS_CONVERT {
 
     """
     samtools view \\
-        --threads ${task.cpus} \\
+        --threads \${FovusOptVcpu} \\
         --reference ${fasta} \\
         $args \\
         $input \\
         -o ${prefix}.${output_extension}
 
-    samtools index -@${task.cpus} ${prefix}.${output_extension}
+    samtools index -@\${FovusOptVcpu} ${prefix}.${output_extension}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

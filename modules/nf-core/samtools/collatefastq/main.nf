@@ -34,7 +34,7 @@ process SAMTOOLS_COLLATEFASTQ {
     """
     samtools collate \\
         $args \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         ${reference} \\
         -O \\
         $input \\
@@ -42,7 +42,7 @@ process SAMTOOLS_COLLATEFASTQ {
 
     samtools fastq \\
         $args2 \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         ${reference} \\
         -0 ${prefix}_other.fq.gz \\
         $output

@@ -41,8 +41,8 @@ process SENTIEON_DEDUP {
     """
     ${sentieonLicense}
 
-    sentieon driver ${args} -t ${task.cpus} ${input_list} -r ${fasta} --algo LocusCollector ${args2} --fun score_info ${prefix_basename}.score
-    sentieon driver ${args3} -t ${task.cpus} ${input_list} -r ${fasta} --algo Dedup ${args4} --score_info ${prefix_basename}.score --metrics ${metrics} ${prefix}
+    sentieon driver ${args} -t \${FovusOptVcpu} ${input_list} -r ${fasta} --algo LocusCollector ${args2} --fun score_info ${prefix_basename}.score
+    sentieon driver ${args3} -t \${FovusOptVcpu} ${input_list} -r ${fasta} --algo Dedup ${args4} --score_info ${prefix_basename}.score --metrics ${metrics} ${prefix}
 
     # This following tsv-file is produced in order to get a proper tsv-file with Dedup-metrics for importing in MultiQC as "custom content".
     # It should be removed once MultiQC has a module for displaying Dedup-metrics.

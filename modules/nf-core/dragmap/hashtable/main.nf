@@ -27,7 +27,7 @@ process DRAGMAP_HASHTABLE {
         --ht-reference ${fasta} \\
         --output-directory dragmap \\
         ${args} \\
-        --ht-num-threads ${task.cpus}
+        --ht-num-threads \${FovusOptVcpu}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

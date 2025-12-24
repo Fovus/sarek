@@ -31,14 +31,20 @@ process GATK4_FILTERMUTECTCALLS {
     def estimate_command        = estimate        ? " --contamination-estimate ${estimate} "                                    : ''
     def table_command           = table           ? table.collect{"--contamination-table $it"}.join(' ')                        : ''
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info '[GATK FilterMutectCalls] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
-    }
+   /*
+    * Replace by Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info '[GATK FilterMutectCalls] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
+    * } else {
+    *     avail_mem = (task.memory.mega*0.8).intValue()
+    * }
+    */
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         FilterMutectCalls \\
         --variant $vcf \\
         --output ${prefix}.vcf.gz \\

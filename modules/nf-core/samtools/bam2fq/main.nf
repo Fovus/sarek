@@ -27,7 +27,7 @@ process SAMTOOLS_BAM2FQ {
         samtools \\
             bam2fq \\
             $args \\
-            -@ $task.cpus \\
+            -@ \$FovusOptVcpu \\
             -1 ${prefix}_1.fq.gz \\
             -2 ${prefix}_2.fq.gz \\
             -0 ${prefix}_other.fq.gz \\
@@ -44,7 +44,7 @@ process SAMTOOLS_BAM2FQ {
         samtools \\
             bam2fq \\
             $args \\
-            -@ $task.cpus \\
+            -@ \$FovusOptVcpu \\
             $inputbam | gzip --no-name > ${prefix}_interleaved.fq.gz
 
         cat <<-END_VERSIONS > versions.yml

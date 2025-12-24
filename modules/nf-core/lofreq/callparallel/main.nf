@@ -30,7 +30,7 @@ process LOFREQ_CALLPARALLEL {
     def alignment_out = alignment_cram ? bam.BaseName + ".bam" : "${bam}"
 
     def samtools_cram_convert = ''
-    samtools_cram_convert += alignment_cram ? "    samtools view -T ${fasta} ${bam} -@ $task.cpus -o ${alignment_out}\n" : ''
+    samtools_cram_convert += alignment_cram ? "    samtools view -T ${fasta} ${bam} -@ \$FovusOptVcpu -o ${alignment_out}\n" : ''
     samtools_cram_convert += alignment_cram ? "    samtools index ${alignment_out}\n" : ''
 
     def samtools_cram_remove = ''
@@ -41,7 +41,7 @@ process LOFREQ_CALLPARALLEL {
 
     lofreq \\
         call-parallel \\
-        --pp-threads $task.cpus \\
+        --pp-threads \$FovusOptVcpu \\
         $args \\
         $options_intervals \\
         -f $fasta \\

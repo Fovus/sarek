@@ -36,7 +36,7 @@ process CAT_CAT {
     out_zip  = prefix.endsWith('.gz')
     in_zip   = file_list[0].endsWith('.gz')
     command1 = (in_zip && !out_zip) ? 'zcat' : 'cat'
-    command2 = (!in_zip && out_zip) ? "| pigz -c -p $task.cpus $args2" : ''
+    command2 = (!in_zip && out_zip) ? "| pigz -c -p \$FovusOptVcpu $args2" : ''
     if(file_list.contains(prefix.trim())) {
         error "The name of the input file can't be the same as for the output prefix in the " +
         "module CAT_CAT (currently `$prefix`). Please choose a different one."

@@ -30,12 +30,16 @@ process BBMAP_BBSPLIT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info '[BBSplit] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
-    }
+   /*
+    * Replaced with Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info '[BBSplit] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
+    * } else {
+    *     avail_mem = (task.memory.mega*0.8).intValue()
+    * }
+    */
 
     def other_refs = []
     other_ref_names.eachWithIndex { name, index ->
@@ -80,11 +84,12 @@ process BBMAP_BBSPLIT {
     fi
 
     # Run BBSplit
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
 
     bbsplit.sh \\
-        -Xmx${avail_mem}M \\
+        -Xmx\${avail_mem}M \\
         $index_files \\
-        threads=$task.cpus \\
+        threads=\$FovusOptVcpu \\
         $fastq_in \\
         $fastq_out \\
         $refstats_cmd \\

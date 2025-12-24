@@ -20,14 +20,21 @@ process GATK4_CREATESEQUENCEDICTIONARY {
     script:
     def args = task.ext.args ?: ''
 
-    def avail_mem = 6144
-    if (!task.memory) {
-        log.info '[GATK CreateSequenceDictionary] Available memory not known - defaulting to 6GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
-    }
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 6144
+    * if (!task.memory) {
+    *     log.info '[GATK CreateSequenceDictionary] Available memory not known - defaulting to 6GB. Specify process memory requirements to change this.'
+    * } else {
+    *     avail_mem = (task.memory.mega*0.8).intValue()
+    * }
+    */
+
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         CreateSequenceDictionary \\
         --REFERENCE $fasta \\
         --URI $fasta \\

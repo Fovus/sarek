@@ -28,22 +28,29 @@ process GATK4SPARK_BASERECALIBRATOR {
     def interval_command = intervals ? "--intervals ${intervals}" : ""
     def sites_command = known_sites.collect { "--known-sites ${it}" }.join(' ')
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info('[GATK BaseRecalibratorSpark] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
-    }
-    else {
-        avail_mem = (task.memory.mega * 0.8).intValue()
-    }
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info('[GATK BaseRecalibratorSpark] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
+    * }
+    * else {
+    *     avail_mem = (task.memory.mega * 0.8).intValue()
+    * }
+    */
+
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         BaseRecalibratorSpark \\
         --input ${input} \\
         --output ${prefix}.table \\
         --reference ${fasta} \\
         ${interval_command} \\
         ${sites_command} \\
-        --spark-master local[${task.cpus}] \\
+        --spark-master local[\${FovusOptVcpu}] \\
         --tmp-dir . \\
         ${args}
 

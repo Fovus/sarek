@@ -36,7 +36,7 @@ process MSISENSORPRO_MSISOMATIC {
         -t ${tumor} \\
         ${fasta_cmd} \\
         -o ${prefix} \\
-        -b ${task.cpus} \\
+        -b \${FovusOptVcpu} \\
         ${intervals_cmd} \\
         ${args}
 

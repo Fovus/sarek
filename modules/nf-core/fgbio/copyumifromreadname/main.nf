@@ -22,17 +22,25 @@ process FGBIO_COPYUMIFROMREADNAME {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_umi_extracted"
-    def mem_gb = 8
-    if (!task.memory) {
-        log.info '[fgbio CopyUmiFromReadName] Available memory not known - defaulting to 8GB. Specify process memory requirements to change this.'
-    } else if (mem_gb > task.memory.giga) {
-        if (task.memory.giga < 2) {
-            mem_gb = 1
-        } else {
-            mem_gb = task.memory.giga - 1
-        }
-    }
+   /*
+    * Removed for Fovus environment token use.
+    *
+    * def mem_gb = 8
+    * if (!task.memory) {
+    *     log.info '[fgbio CopyUmiFromReadName] Available memory not known - defaulting to 8GB. Specify process memory requirements to change this.'
+    * } else if (mem_gb > task.memory.giga) {
+    *     if (task.memory.giga < 2) {
+    *         mem_gb = 1
+    *     } else {
+    *         mem_gb = task.memory.giga - 1
+    *     }
+    * }
+    */
     """
+    if [ 8 -gt \$FovusOptVcpuMem ]; then
+      if [ \$FovusOptVcpuMem -lt 2 ]; then mem_gb=1; else mem_gb=\$(( \$FovusOptVcpuMem - 1 )); fi;
+    fi
+
     fgbio \\
         -Xmx${mem_gb}g \\
         --tmp-dir=. \\

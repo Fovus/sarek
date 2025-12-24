@@ -48,7 +48,7 @@ process ENSEMBLVEP_VEP {
         --cache \\
         --cache_version ${cache_version} \\
         --dir_cache ${dir_cache} \\
-        --fork ${task.cpus}
+        --fork \${FovusOptVcpu}
 
     ${create_index}
 

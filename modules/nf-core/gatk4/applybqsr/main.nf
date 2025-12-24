@@ -29,15 +29,22 @@ process GATK4_APPLYBQSR {
     def suffix = task.ext.suffix && task.ext.suffix == "bam" ? "bam" : "cram"
     def interval_command = intervals ? "--intervals ${intervals}" : ""
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info('[GATK ApplyBQSR] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
-    }
-    else {
-        avail_mem = (task.memory.mega * 0.8).intValue()
-    }
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info('[GATK ApplyBQSR] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
+    * }
+    * else {
+    *     avail_mem = (task.memory.mega * 0.8).intValue()
+    * }
+    */
+
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         ApplyBQSR \\
         --input ${input} \\
         --output ${prefix}.${suffix} \\

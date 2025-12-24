@@ -58,7 +58,7 @@ process PARABRICKS_FQ2BAM {
         ${known_sites_output_cmd} \\
         ${interval_file_command} \\
         ${num_gpus} \\
-        --bwa-cpu-thread-pool ${task.cpus} \\
+        --bwa-cpu-thread-pool \${FovusOptVcpu} \\
         --monitor-usage \\
         ${args}
 

@@ -37,7 +37,7 @@ process BCFTOOLS_MERGE {
     bcftools merge \\
         $args \\
         $regions \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         --output ${prefix}.${extension} \\
         $input
 

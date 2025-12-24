@@ -31,7 +31,7 @@ process TIDDIT_SV {
     tiddit \\
         --sv \\
         $args \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         --bam $input \\
         --ref $fasta \\
         -o $prefix

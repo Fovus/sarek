@@ -27,7 +27,7 @@ process MUSE_CALL {
         ${args} \\
         -f ${reference} \\
         -O ${prefix}  \\
-        -n ${task.cpus} \\
+        -n \${FovusOptVcpu} \\
         ${tumor_bam}    \\
         ${normal_bam}
 

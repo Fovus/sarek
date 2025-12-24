@@ -25,20 +25,29 @@ process FGBIO_FASTQTOBAM {
     def sample_name = args.contains("--sample") ? "" : "--sample ${prefix}"
     def library_name = args.contains("--library") ? "" : "--library ${prefix}"
 
-    def mem_gb = 8
-    if (!task.memory) {
-        log.info '[fgbio FastqToBam] Available memory not known - defaulting to 8GB. Specify process memory requirements to change this.'
-    } else if (mem_gb > task.memory.giga) {
-        if (task.memory.giga < 2) {
-            mem_gb = 1
-        } else {
-            mem_gb = task.memory.giga - 1
-        }
-    }
+    /*
+     * Replaced by bash code in execution script.
+     *
+     * def mem_gb = 8
+     * if (!task.memory) {
+     *     log.info '[fgbio FastqToBam] Available memory not known - defaulting to 8GB. Specify process memory requirements to change this.'
+     * } else if (mem_gb > task.memory.giga) {
+     *     if (task.memory.giga < 2) {
+     *         mem_gb = 1
+     *     } else {
+     *         mem_gb = task.memory.giga - 1
+     *     }
+     * }
+     *
+     */
 
     """
+    if [ 8 -gt \$FovusOptVcpuMem ]; then
+      if [ \$FovusOptVcpuMem -lt 2 ]; then mem_gb=1; else mem_gb=\$(( \$FovusOptVcpuMem - 1 )); fi;
+    fi
+
     fgbio \\
-        -Xmx${mem_gb}g \\
+        -Xmx\${mem_gb}g \\
         --tmp-dir=. \\
         --async-io=true \\
         FastqToBam \\

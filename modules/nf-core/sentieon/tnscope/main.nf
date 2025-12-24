@@ -44,7 +44,7 @@ process SENTIEON_TNSCOPE {
 
 
     sentieon driver \\
-        -t ${task.cpus} \\
+        -t \${FovusOptVcpu} \\
         -r ${fasta} \\
         ${inputs} \\
         ${interval_str} \\

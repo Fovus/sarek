@@ -36,7 +36,7 @@ process BCFTOOLS_CONCAT {
     bcftools concat \\
         --output ${prefix}.${extension} \\
         $args \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         ${input}
 
     cat <<-END_VERSIONS > versions.yml

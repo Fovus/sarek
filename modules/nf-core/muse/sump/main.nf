@@ -30,11 +30,11 @@ process MUSE_SUMP {
         sump \\
         ${args} \\
         -I ${muse_call_txt} \\
-        -n ${task.cpus} \\
+        -n \${FovusOptVcpu} \\
         -D ${ref_vcf} \\
         -O ${prefix}.vcf
 
-    bgzip ${args2} --threads ${task.cpus} ${prefix}.vcf
+    bgzip ${args2} --threads \${FovusOptVcpu} ${prefix}.vcf
     tabix -p vcf ${prefix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml

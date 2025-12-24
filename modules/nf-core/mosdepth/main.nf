@@ -43,7 +43,7 @@ process MOSDEPTH {
 
     """
     mosdepth \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         $interval \\
         $reference \\
         $args \\

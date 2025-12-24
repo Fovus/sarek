@@ -35,14 +35,21 @@ process GATK4_MUTECT2 {
     def pon_command = panel_of_normals ? "--panel-of-normals $panel_of_normals" : ""
     def gr_command = germline_resource ? "--germline-resource $germline_resource" : ""
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info '[GATK Mutect2] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
-    }
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info '[GATK Mutect2] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
+    * } else {
+    *     avail_mem = (task.memory.mega*0.8).intValue()
+    * }
+    */
+
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         Mutect2 \\
         $inputs \\
         --output ${prefix}.vcf.gz \\

@@ -3,7 +3,7 @@ process MSISENSOR2_MSI {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ? 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
             'https://depot.galaxyproject.org/singularity/msisensor2:0.1--hd03093a_0' :
             'biocontainers/msisensor2:0.1--hd03093a_0'}"
 
@@ -25,7 +25,7 @@ process MSISENSOR2_MSI {
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     msisensor2 msi \\
-        -b ${task.cpus} \\
+        -b \${FovusOptVcpu} \\
         ${args} \\
         -M ${models} \\
         -t ${tumor_bam} \\

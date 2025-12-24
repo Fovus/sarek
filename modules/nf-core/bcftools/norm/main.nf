@@ -34,7 +34,7 @@ process BCFTOOLS_NORM {
         --fasta-ref ${fasta} \\
         --output ${prefix}.${extension} \\
         $args \\
-        --threads $task.cpus \\
+        --threads \$FovusOptVcpu \\
         ${vcf}
 
     cat <<-END_VERSIONS > versions.yml

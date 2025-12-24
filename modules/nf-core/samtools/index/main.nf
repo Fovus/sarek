@@ -24,7 +24,7 @@ process SAMTOOLS_INDEX {
     """
     samtools \\
         index \\
-        -@ ${task.cpus-1} \\
+        -@ \$(( \$FovusOptVcpu - 1 )) \\
         $args \\
         $input
 

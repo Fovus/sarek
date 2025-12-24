@@ -33,7 +33,7 @@ process SENTIEON_APPLYVARCAL {
 
     sentieon driver \\
         -r ${fasta}  \\
-        -t ${task.cpus} \\
+        -t \${FovusOptVcpu} \\
         ${args} \\
         --algo ApplyVarCal \\
         -v ${vcf} \\

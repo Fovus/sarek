@@ -63,7 +63,7 @@ process SENTIEON_DNASCOPE {
     """
     ${sentieonLicense}
 
-    sentieon driver ${args} -r ${fasta} -t ${task.cpus} -i ${bam} ${interval} ${vcf_cmd} ${gvcf_cmd}
+    sentieon driver ${args} -r ${fasta} -t \${FovusOptVcpu} -i ${bam} ${interval} ${vcf_cmd} ${gvcf_cmd}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

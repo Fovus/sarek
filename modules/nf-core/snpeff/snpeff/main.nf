@@ -24,18 +24,26 @@ process SNPEFF_SNPEFF {
 
     script:
     def args = task.ext.args ?: ''
-    def avail_mem = 6144
-    if (!task.memory) {
-        log.info('[snpEff] Available memory not known - defaulting to 6GB. Specify process memory requirements to change this.')
-    }
-    else {
-        avail_mem = (task.memory.mega * 0.8).intValue()
-    }
+
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 6144
+    * if (!task.memory) {
+    *     log.info('[snpEff] Available memory not known - defaulting to 6GB. Specify process memory requirements to change this.')
+    * }
+    * else {
+    *     avail_mem = (task.memory.mega * 0.8).intValue()
+    * }
+    */
+
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cache_command = cache ? "-dataDir \${PWD}/${cache}" : ""
     """
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
     snpEff \\
-        -Xmx${avail_mem}M \\
+        -Xmx\${avail_mem}M \\
         ${db} \\
         ${args} \\
         -csvStats ${prefix}.csv \\

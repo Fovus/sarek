@@ -44,10 +44,10 @@ process DRAGMAP_ALIGN {
     dragen-os \\
         -r ${hashmap} \\
         ${args} \\
-        --num-threads ${task.cpus} \\
+        --num-threads \${FovusOptVcpu} \\
         ${reads_command} \\
         2> >(tee ${prefix}.dragmap.log >&2) \\
-        | samtools ${samtools_command} ${args2} --threads ${task.cpus} ${reference} -o ${prefix}.${extension} -
+        | samtools ${samtools_command} ${args2} --threads \${FovusOptVcpu} ${reference} -o ${prefix}.${extension} -
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

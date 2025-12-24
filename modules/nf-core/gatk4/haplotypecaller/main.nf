@@ -32,19 +32,26 @@ process GATK4_HAPLOTYPECALLER {
     def dragstr_command = dragstr_model ? "--dragstr-params-path $dragstr_model" : ""
     def bamout_command = args.contains("--bam-writer-type") ? "--bam-output ${prefix.replaceAll('.g\\s*$', '')}.realigned.bam" : ""
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info '[GATK HaplotypeCaller] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
-    }
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info '[GATK HaplotypeCaller] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
+    * } else {
+    *     avail_mem = (task.memory.mega*0.8).intValue()
+    * }
+    */
+
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         HaplotypeCaller \\
         --input $input \\
         --output ${prefix}.vcf.gz \\
         --reference $fasta \\
-        --native-pair-hmm-threads ${task.cpus} \\
+        --native-pair-hmm-threads \${FovusOptVcpu} \\
         $dbsnp_command \\
         $interval_command \\
         $dragstr_command \\

@@ -37,7 +37,7 @@ process STRELKA_GERMLINE {
 
     sed -i s/"isEmail = isLocalSmtp()"/"isEmail = False"/g strelka/runWorkflow.py
 
-    python strelka/runWorkflow.py -m local -j ${task.cpus}
+    python strelka/runWorkflow.py -m local -j \${FovusOptVcpu}
     mv strelka/results/variants/genome.*.vcf.gz     ${prefix}.genome.vcf.gz
     mv strelka/results/variants/genome.*.vcf.gz.tbi ${prefix}.genome.vcf.gz.tbi
     mv strelka/results/variants/variants.vcf.gz     ${prefix}.variants.vcf.gz

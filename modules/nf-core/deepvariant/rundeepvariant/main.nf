@@ -45,7 +45,7 @@ process DEEPVARIANT_RUNDEEPVARIANT {
         ${regions} \\
         ${par_regions} \\
         --intermediate_results_dir=tmp \\
-        --num_shards=${task.cpus}
+        --num_shards=\${FovusOptVcpu}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

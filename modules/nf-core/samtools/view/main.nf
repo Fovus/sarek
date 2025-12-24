@@ -52,7 +52,7 @@ process SAMTOOLS_VIEW {
     """
     samtools \\
         view \\
-        --threads ${task.cpus-1} \\
+        --threads \$(( \$FovusOptVcpu - 1 )) \\
         ${reference} \\
         ${readnames} \\
         $args \\

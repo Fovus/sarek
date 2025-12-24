@@ -26,22 +26,39 @@ process FASTQC {
     def rename_to     = old_new_pairs*.join(' ').join(' ')
     def renamed_files = old_new_pairs.collect{ _old_name, new_name -> new_name }.join(' ')
 
-    // The total amount of allocated RAM by FastQC is equal to the number of threads defined (--threads) time the amount of RAM defined (--memory)
-    // https://github.com/s-andrews/FastQC/blob/1faeea0412093224d7f6a07f777fad60a5650795/fastqc#L211-L222
-    // Dividing the task.memory by task.cpu allows to stick to requested amount of RAM in the label
-    def memory_in_mb = task.memory ? task.memory.toUnit('MB') / task.cpus : null
-    // FastQC memory value allowed range (100 - 10000)
-    def fastqc_memory = memory_in_mb > 10000 ? 10000 : (memory_in_mb < 100 ? 100 : memory_in_mb)
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * // The total amount of allocated RAM by FastQC is equal to the number of threads defined (--threads) time the amount of RAM defined (--memory)
+    * // https://github.com/s-andrews/FastQC/blob/1faeea0412093224d7f6a07f777fad60a5650795/fastqc#L211-L222
+    * // Dividing the task.memory by task.cpu allows to stick to requested amount of RAM in the label
+    * def memory_in_mb = task.memory ? task.memory.toUnit('MB') / task.cpus : null
+    * // FastQC memory value allowed range (100 - 10000)
+    * def fastqc_memory = memory_in_mb > 10000 ? 10000 : (memory_in_mb < 100 ? 100 : memory_in_mb)
+    */
 
     """
+    # Using integer arithmetic: 1 GiB = 1024 MiB
+    memory_in_mb=\$(( \$FovusOptVcpuMem * 1024 / \$FovusOptVcpu ))
+
+    # Clamp FastQC memory value to allowed range (100 - 10000 MB)
+    if [ \$memory_in_mb -gt 10000 ]; then
+        fastqc_memory=10000
+    elif [ \$memory_in_mb -lt 100 ]; then
+        fastqc_memory=100
+    else
+        fastqc_memory=\$memory_in_mb
+    fi
+
+
     printf "%s %s\\n" ${rename_to} | while read old_name new_name; do
         [ -f "\${new_name}" ] || ln -s \$old_name \$new_name
     done
 
     fastqc \\
         ${args} \\
-        --threads ${task.cpus} \\
-        --memory ${fastqc_memory} \\
+        --threads \${FovusOptVcpu} \\
+        --memory \${fastqc_memory} \\
         ${renamed_files}
 
     cat <<-END_VERSIONS > versions.yml

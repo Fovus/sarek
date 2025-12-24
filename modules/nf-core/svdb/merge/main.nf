@@ -68,7 +68,7 @@ process SVDB_MERGE {
         --vcf $input |\\
         bcftools view \\
             $args2 \\
-            --threads ${task.cpus} \\
+            --threads \${FovusOptVcpu} \\
             --output ${prefix}.${extension}
 
     cat <<-END_VERSIONS > versions.yml

@@ -42,7 +42,7 @@ process FASTP {
         fastp \\
             --stdout \\
             --in1 ${prefix}.fastq.gz \\
-            --thread $task.cpus \\
+            --thread \$FovusOptVcpu \\
             --json ${prefix}.fastp.json \\
             --html ${prefix}.fastp.html \\
             $adapter_list \\
@@ -63,7 +63,7 @@ process FASTP {
         fastp \\
             --in1 ${prefix}.fastq.gz \\
             $out_fq1 \\
-            --thread $task.cpus \\
+            --thread \$FovusOptVcpu \\
             --json ${prefix}.fastp.json \\
             --html ${prefix}.fastp.html \\
             $adapter_list \\
@@ -91,7 +91,7 @@ process FASTP {
             $adapter_list \\
             $fail_fastq \\
             $merge_fastq \\
-            --thread $task.cpus \\
+            --thread \$FovusOptVcpu \\
             --detect_adapter_for_pe \\
             $args \\
             2> >(tee ${prefix}.fastp.log >&2)

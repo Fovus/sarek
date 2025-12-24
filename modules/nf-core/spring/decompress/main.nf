@@ -28,7 +28,7 @@ process SPRING_DECOMPRESS {
     spring \\
         -d \\
         -g \\
-        -t ${task.cpus} \\
+        -t \${FovusOptVcpu} \\
         $args \\
         -i ${spring} \\
         ${output}

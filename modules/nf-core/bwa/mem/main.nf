@@ -40,10 +40,10 @@ process BWA_MEM {
 
     bwa mem \\
         $args \\
-        -t $task.cpus \\
+        -t \$FovusOptVcpu \\
         \$INDEX \\
         $reads \\
-        | samtools $samtools_command $args2 ${reference} --threads $task.cpus -o ${prefix}.${extension} -
+        | samtools $samtools_command $args2 ${reference} --threads \$FovusOptVcpu -o ${prefix}.${extension} -
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

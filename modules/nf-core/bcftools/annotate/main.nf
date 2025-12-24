@@ -49,7 +49,7 @@ process BCFTOOLS_ANNOTATE {
         ${header_file} \\
         ${rename_chrs_file} \\
         --output ${prefix}.${extension} \\
-        --threads ${task.cpus} \\
+        --threads \${FovusOptVcpu} \\
         ${input}
 
     cat <<-END_VERSIONS > versions.yml

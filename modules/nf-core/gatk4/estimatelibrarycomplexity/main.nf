@@ -26,14 +26,21 @@ process GATK4_ESTIMATELIBRARYCOMPLEXITY {
     def input_list = input.collect(){"--INPUT $it"}.join(" ")
     def reference = fasta ? "--REFERENCE_SEQUENCE ${fasta}" : ""
 
-    def avail_mem = 3072
-    if (!task.memory) {
-        log.info '[GATK EstimateLibraryComplexity] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
-    } else {
-        avail_mem = (task.memory.mega*0.8).intValue()
-    }
+   /*
+    * Replaced by Fovus environment tokens.
+    *
+    * def avail_mem = 3072
+    * if (!task.memory) {
+    *     log.info '[GATK EstimateLibraryComplexity] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.'
+    * } else {
+    *     avail_mem = (task.memory.mega*0.8).intValue()
+    * }
+    */
+
     """
-    gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
+    avail_mem=\$(( \$FovusOptVcpuMem * 1024 * 8 / 10 ))
+
+    gatk --java-options "-Xmx\${avail_mem}M -XX:-UsePerfData" \\
         EstimateLibraryComplexity \\
         $input_list \\
         --OUTPUT ${prefix}.metrics \\

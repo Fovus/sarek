@@ -64,7 +64,7 @@ process SENTIEON_HAPLOTYPER {
     sentieon driver \\
         ${args} \\
         -r ${fasta} \\
-        -t ${task.cpus} \\
+        -t \${FovusOptVcpu} \\
         ${interval_command} \\
         ${input_list} \\
         ${recal_table_command} \\

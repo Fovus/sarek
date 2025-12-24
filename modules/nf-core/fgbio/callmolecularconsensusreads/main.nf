@@ -22,16 +22,21 @@ process FGBIO_CALLMOLECULARCONSENSUSREADS {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}_consensus_unmapped"
-    def mem_gb = 8
-    if (!task.memory) {
-        log.info '[fgbio CallMolecularConsensusReads] Available memory not known - defaulting to 8GB. Specify process memory requirements to change this.'
-    } else {
-        mem_gb = task.memory.giga
-    }
+
+   /*
+    * Removed in favor of Fovus environment token. 
+    *
+    * def mem_gb = 8
+    * if (!task.memory) {
+    *     log.info '[fgbio CallMolecularConsensusReads] Available memory not known - defaulting to 8GB. Specify process memory requirements to change this.'
+    * } else {
+    *     mem_gb = task.memory.giga
+    * }
+    */
     if ("$grouped_bam" == "${prefix}.bam") error "Input and output names are the same, use \"task.ext.prefix\" to disambiguate!"
     """
     fgbio \\
-        -Xmx${mem_gb}g \\
+        -Xmx${FovusOptVcpuMem}g \\
         --tmp-dir=. \\
         --async-io=true \\
         --compression=1 \\
@@ -40,7 +45,7 @@ process FGBIO_CALLMOLECULARCONSENSUSREADS {
         --output ${prefix}.bam \\
         --min-reads ${min_reads} \\
         --min-input-base-quality ${min_baseq} \\
-        --threads ${task.cpus} \\
+        --threads \${FovusOptVcpu} \\
         $args;
 
     cat <<-END_VERSIONS > versions.yml

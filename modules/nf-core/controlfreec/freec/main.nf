@@ -114,7 +114,7 @@ process CONTROLFREEC_FREEC {
     echo ${minexpectedgc} >> config.txt
     echo ${maxexpectedgc} >> config.txt
     echo ${minimalsubclonepresence} >> config.txt
-    echo "maxThreads = ${task.cpus}" >> config.txt
+    echo "maxThreads = \${FovusOptVcpu}" >> config.txt
     echo ${noisydata} >> config.txt
     echo ${output} >> config.txt
     echo ${ploidy} >> config.txt
