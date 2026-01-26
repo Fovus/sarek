@@ -107,7 +107,7 @@ process ASCAT {
         loci.prefix = loci_prefix,
         gender = "${gender}",
         genomeVersion = "${genomeVersion}",
-        nthreads = \${FovusOptVcpu}
+        nthreads = Sys.getenv("FovusOptVcpu")
         ${minCounts_arg}
         ${bed_file_arg}
         ${chrom_names_arg}
