@@ -10,12 +10,18 @@ process PARABRICKS_DEEPVARIANT {
     input:
     tuple val(meta), path(input), path(input_index), path(intervals)
     tuple val(ref_meta), path(fasta)
+    tuple val(meta3), path(fai)
+    tuple val(meta4), path(gzi)
+    tuple val(meta5), path(par_bed)
+
 
     output:
-    tuple val(meta), path("*.vcf.gz"),   emit: vcf,                 optional: true
-    tuple val(meta), path("*.g.vcf.gz"), emit: gvcf,                optional: true
+    tuple val(meta), path("*.vcf.gz"),                       emit: vcf,         optional: true
+    tuple val(meta), path("*.vcf.gz.{tbi,csi}"),     emit: vcf_index,   optional: true
+    tuple val(meta), path("*.g.vcf.gz"),                     emit: gvcf,        optional: true
+    tuple val(meta), path("*.g.vcf.gz.{tbi,csi}") ,  emit: gvcf_index,  optional: true
     path "compatible_versions.yml",      emit: compatible_versions, optional: true
-    tuple val("${task.process}"), val('parabricks'), eval("pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'"), topic: versions, emit: versions_parabricks
+    tuple val("${task.process}"), val('parabricks'), eval("pbrun version | grep -m1 '^pbrun:' | sed 's/^pbrun:[[:space:]]*//'"), topic: versions, emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,14 +34,16 @@ process PARABRICKS_DEEPVARIANT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def output_file = args.contains("--gvcf") ? "${prefix}.g.vcf.gz" : "${prefix}.vcf.gz"
-    def interval_command = intervals        ? intervals.collect { interval -> "--interval-file ${interval}" }.join(' ') : ""
-    def num_gpus = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
+    def interval_command = intervals        ? intervals.collect { intervals -> "--interval-file ${intervals}" }.join(' ') : ""
+    // def num_gpus = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
+    def num_gpus = "--num-gpus 1"
+
     """
     pbrun \\
         deepvariant \\
         --ref ${fasta} \\
         --in-bam ${input} \\
-        --out-variants ${output_file} \\
+        --out-variants ${prefix}.vcf.gz \\
         ${interval_command} \\
         ${num_gpus} \\
         ${args}
