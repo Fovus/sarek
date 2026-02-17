@@ -1,12 +1,11 @@
 process DEEPVARIANT_RUNDEEPVARIANT {
     tag "$meta.id"
     label 'process_high'
+    // label 'process_gpu'
+    // needed by the module to work properly can be removed when fixed upstream - see: https://github.com/nf-core/modules/issues/7226
+    stageInMode 'copy'
 
-    // FIXME Conda is not supported at the moment
-    // https://github.com/bioconda/bioconda-recipes/pull/45214#issuecomment-1890937836
-    // BUG https://github.com/nf-core/modules/issues/1754
-    // BUG https://github.com/bioconda/bioconda-recipes/issues/30310
-    container "docker.io/google/deepvariant:1.9.0"
+    container "nvcr.io/nvidia/clara/clara-parabricks:4.6.0-1"
 
     input:
     tuple val(meta), path(input), path(index), path(intervals)
@@ -14,6 +13,7 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     tuple val(meta3), path(fai)
     tuple val(meta4), path(gzi)
     tuple val(meta5), path(par_bed)
+
 
     output:
     tuple val(meta), path("${prefix}.vcf.gz")             , emit: vcf
@@ -28,46 +28,62 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     script:
     // Exit if running this module with -profile conda / -profile mamba
     if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error "DEEPVARIANT module does not support Conda. Please use Docker / Singularity / Podman instead."
+        exit(1, "Parabricks module does not support Conda. Please use Docker / Singularity / Podman instead.")
     }
     def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
-    def regions = intervals ? "--regions=${intervals}" : ""
-    def par_regions = par_bed ? "--par_regions_bed=${par_bed}" : ""
+    println("Debug start")
+    println(task.ext.prefix)
+    println(meta.id)
+    println(prefix)
+    println("Debug end")
+    def output_file = args.contains("--gvcf") ? "${prefix}.g.vcf.gz" : "${prefix}.vcf.gz"
+    def interval_command = intervals        ? intervals.collect { intervals -> "--interval-file ${intervals}" }.join(' ') : ""
+    // def num_gpus = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
+    def num_gpus = "--num-gpus 1"
 
     """
-    /opt/deepvariant/bin/run_deepvariant \\
-        --ref=${fasta} \\
-        --reads=${input} \\
-        --output_vcf=${prefix}.vcf.gz \\
-        --output_gvcf=${prefix}.g.vcf.gz \\
-        ${args} \\
-        ${regions} \\
-        ${par_regions} \\
-        --intermediate_results_dir=tmp \\
-        --num_shards=${task.cpus}
+    #pbrun \\
+    #    deepvariant \\
+    #    --ref ${fasta} \\
+    #    --in-bam ${input} \\
+    #    --out-variants ${prefix}.vcf.gz \\
+    #    ${interval_command} \\
+    #    ${num_gpus} \\
+	#    --num-streams-per-gpu 1 \\
+    #    ${args}
+
+    echo "DEBUG PARABRICKS OUTPUT"
+    echo "non-emptyfile" > ${prefix}.vcf.gz
+    echo "non-emptyfile" > ${prefix}.vcf.gz.tbi
+    ls
+    exit 1
 
     cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        deepvariant: \$(echo \$(/opt/deepvariant/bin/run_deepvariant --version) | sed 's/^.*version //; s/ .*\$//' )
+	"${task.process}":
+		parabricks-deepvariant: \$(echo "4.6.0-1")
     END_VERSIONS
+
+
     """
 
     stub:
-    // Exit if running this module with -profile conda / -profile mamba
-    if (workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1) {
-        error "DEEPVARIANT module does not support Conda. Please use Docker / Singularity / Podman instead."
-    }
+    def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
+    def output_cmd = args.contains("--gvcf") ? "echo '' | gzip > ${prefix}.g.vcf.gz" : "echo '' | gzip > ${prefix}.vcf.gz"
     """
-    echo "" | gzip > ${prefix}.vcf.gz
-    touch ${prefix}.vcf.gz.tbi
-    echo "" | gzip > ${prefix}.g.vcf.gz
-    touch ${prefix}.g.vcf.gz.tbi
+    ${output_cmd}
 
-    cat <<-END_VERSIONS > versions.yml
+    # Capture the full version output once and store it in a variable
+    pbrun_version_output=\$(pbrun deepvariant --version 2>&1)
+
+    # Generate compatible_versions.yml
+    cat <<EOF > compatible_versions.yml
     "${task.process}":
-        deepvariant: \$(echo \$(/opt/deepvariant/bin/run_deepvariant --version) | sed 's/^.*version //; s/ .*\$//' )
-    END_VERSIONS
+        pbrun_version: \$(echo "\$pbrun_version_output" | grep "pbrun:" | awk '{print \$2}')
+        compatible_with:
+        \$(echo "\$pbrun_version_output" | awk '/Compatible With:/,/^---/{ if (\$1 ~ /^[A-Z]/ && \$1 != "Compatible" && \$1 != "---") { printf "  %s: %s\\n", \$1, \$2 } }')
+    EOF
     """
 }
+
