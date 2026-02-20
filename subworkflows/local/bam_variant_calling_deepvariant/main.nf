@@ -5,7 +5,7 @@
 // A when clause condition is defined in the conf/modules.config to determine if the module should be run
 
 include { DEEPVARIANT_RUNDEEPVARIANT                } from '../../../modules/nf-core/deepvariant/rundeepvariant/main'
-include { GATK4_MERGEVCFS as MERGE_DEEPVARIANT_GVCF } from '../../../modules/nf-core/gatk4/mergevcfs/main'
+//include { GATK4_MERGEVCFS as MERGE_DEEPVARIANT_GVCF } from '../../../modules/nf-core/gatk4/mergevcfs/main'
 include { GATK4_MERGEVCFS as MERGE_DEEPVARIANT_VCF  } from '../../../modules/nf-core/gatk4/mergevcfs/main'
 
 // Deepvariant: https://github.com/google/deepvariant/issues/510
@@ -35,17 +35,17 @@ workflow BAM_VARIANT_CALLING_DEEPVARIANT {
     }
 
     // Figuring out if there is one or more gvcf(s) from the same sample
-    gvcf_out = DEEPVARIANT_RUNDEEPVARIANT.out.gvcf.branch{
-        // Use meta.num_intervals to asses number of intervals
-        intervals:    it[0].num_intervals > 1
-        no_intervals: it[0].num_intervals <= 1
-    }
+    //gvcf_out = DEEPVARIANT_RUNDEEPVARIANT.out.gvcf.branch{
+    //    // Use meta.num_intervals to asses number of intervals
+    //    intervals:    it[0].num_intervals > 1
+    //    no_intervals: it[0].num_intervals <= 1
+    //}
 
     // Only when using intervals
-    gvcf_to_merge = gvcf_out.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ]}.groupTuple()
+    //gvcf_to_merge = gvcf_out.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ]}.groupTuple()
     vcf_to_merge = vcf_out.intervals.map{ meta, vcf -> [ groupKey(meta, meta.num_intervals), vcf ]}.groupTuple()
 
-    MERGE_DEEPVARIANT_GVCF(gvcf_to_merge, dict)
+    //MERGE_DEEPVARIANT_GVCF(gvcf_to_merge, dict)
     MERGE_DEEPVARIANT_VCF(vcf_to_merge, dict)
 
     // Figuring out if there is one or more tbi(s) from the same sample
@@ -56,9 +56,9 @@ workflow BAM_VARIANT_CALLING_DEEPVARIANT {
     }
 
     // Mix intervals and no_intervals channels together
-    gvcf = Channel.empty().mix(MERGE_DEEPVARIANT_GVCF.out.vcf, gvcf_out.no_intervals)
-        // add variantcaller to meta map and remove no longer necessary field: num_intervals
-        .map{ meta, vcf -> [ meta - meta.subMap('num_intervals') + [ variantcaller:'deepvariant' ], vcf ] }
+    //gvcf = Channel.empty().mix(MERGE_DEEPVARIANT_GVCF.out.vcf, gvcf_out.no_intervals)
+    //    // add variantcaller to meta map and remove no longer necessary field: num_intervals
+    //    .map{ meta, vcf -> [ meta - meta.subMap('num_intervals') + [ variantcaller:'deepvariant' ], vcf ] }
 
     // Mix intervals and no_intervals channels together
     vcf = Channel.empty().mix(MERGE_DEEPVARIANT_VCF.out.vcf, vcf_out.no_intervals)
@@ -70,11 +70,10 @@ workflow BAM_VARIANT_CALLING_DEEPVARIANT {
         .map{ meta, tbi -> [ meta - meta.subMap('num_intervals') + [ variantcaller:'deepvariant' ], tbi ] }
 
     versions = versions.mix(DEEPVARIANT_RUNDEEPVARIANT.out.versions)
-    versions = versions.mix(MERGE_DEEPVARIANT_GVCF.out.versions)
+    //versions = versions.mix(MERGE_DEEPVARIANT_GVCF.out.versions)
     versions = versions.mix(MERGE_DEEPVARIANT_VCF.out.versions)
 
     emit:
-    gvcf
     vcf
     tbi
 
