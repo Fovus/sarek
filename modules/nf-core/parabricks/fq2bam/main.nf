@@ -3,7 +3,8 @@ process PARABRICKS_FQ2BAM {
     label 'process_high'
     label 'process_gpu'
     // needed by the module to run on a cluster because we need to copy the fasta reference, see https://github.com/nf-core/modules/issues/9230
-    stageInMode 'copy'
+    // Tested symlinked files on Fovus in BP creation and had no issues. Therefore this option shouldn't be considered required.
+    // stageInMode 'copy'
 
     container "nvcr.io/nvidia/clara/clara-parabricks:4.6.0-1"
 
@@ -44,10 +45,12 @@ process PARABRICKS_FQ2BAM {
     def known_sites_output_cmd = known_sites   ? "--out-recal-file ${prefix}.table" : ""
     def interval_file_command  = interval_file ? (interval_file instanceof List ? interval_file.collect { "--interval-file ${it}" }.join(' ') : "--interval-file ${interval_file}") : ""
 
-    def num_gpus   = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
+    //def num_gpus   = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
     cp ${fasta} \$INDEX
+
+    FovusOptVcpuPerGpu=\$((\$FovusOptVcpu / \$FovusOptGpu))
 
     pbrun \\
         fq2bam \\
@@ -57,9 +60,12 @@ process PARABRICKS_FQ2BAM {
         ${known_sites_command} \\
         ${known_sites_output_cmd} \\
         ${interval_file_command} \\
-        ${num_gpus} \\
-        --bwa-cpu-thread-pool ${task.cpus} \\
+        --num-gpus \$FovusOptGpu \\
+        --bwa-cpu-thread-pool \$FovusOptVcpuPerGpu \\
+        --memory-limit \$FovusOptVcpuMem \\
         --monitor-usage \\
+        --gpuwrite \\
+        --gpusort \\
         ${args}
 
     cat <<-END_VERSIONS > versions.yml
