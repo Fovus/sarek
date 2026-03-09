@@ -8,13 +8,13 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     container "nvcr.io/nvidia/clara/clara-parabricks:4.6.0-1"
 
     input:
-    tuple val(meta), path(input), path(index)
+    tuple val(meta), path(input), path(index), path(intervals)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(fai)
     tuple val(meta4), path(gzi)
+    tuple val(meta5), path(par_bed)
 
-    // tuple val(meta), path(input), path(index), path(intervals)
-    // tuple val(meta5), path(par_bed)
+    //tuple val(meta), path(input), path(index)
 
 
     output:
@@ -62,18 +62,26 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     prefix = task.ext.prefix ?: "${meta.id}"
     def output_cmd = args.contains("--gvcf") ? "echo '' | gzip > ${prefix}.g.vcf.gz" : "echo '' | gzip > ${prefix}.vcf.gz"
     """
-    ${output_cmd}
+    #echo ${output_cmd}
+    echo "" | gzip > ${prefix}.vcf.gz
+    touch ${prefix}.vcf.gz.tbi
+    #echo "" | gzip > ${prefix}.g.vcf.gz
+    #touch ${prefix}.g.vcf.gz.tbi
 
     # Capture the full version output once and store it in a variable
     pbrun_version_output=\$(pbrun deepvariant --version 2>&1)
 
     # Generate compatible_versions.yml
-    cat <<EOF > compatible_versions.yml
-    "${task.process}":
-        pbrun_version: \$(echo "\$pbrun_version_output" | grep "pbrun:" | awk '{print \$2}')
-        compatible_with:
-        \$(echo "\$pbrun_version_output" | awk '/Compatible With:/,/^---/{ if (\$1 ~ /^[A-Z]/ && \$1 != "Compatible" && \$1 != "---") { printf "  %s: %s\\n", \$1, \$2 } }')
-    EOF
+    cat <<-END_VERSIONS > versions.yml
+	"${task.process}":
+		parabricks-deepvariant: \$(echo "4.6.0-1")
+    END_VERSIONS
+    #cat <<EOF > compatible_versions.yml
+    #"${task.process}":
+    #    pbrun_version: \$(echo "\$pbrun_version_output" | grep "pbrun:" | awk '{print \$2}')
+    #    compatible_with:
+    #    \$(echo "\$pbrun_version_output" | awk '/Compatible With:/,/^---/{ if (\$1 ~ /^[A-Z]/ && \$1 != "Compatible" && \$1 != "---") { printf "  %s: %s\\n", \$1, \$2 } }')
+    #EOF
     """
 }
 
