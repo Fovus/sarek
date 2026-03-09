@@ -12,9 +12,9 @@ process PARABRICKS_FQ2BAM {
     tuple val(meta), path(reads)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(index)
-    tuple val(meta4), path(interval_file)
     tuple val(meta5), path(known_sites)
     val output_fmt
+    //tuple val(meta4), path(interval_file)
 
     output:
     tuple val(meta), path("*.bam"),                   emit: bam,                 optional:true
@@ -43,7 +43,8 @@ process PARABRICKS_FQ2BAM {
 
     def known_sites_command    = known_sites   ? (known_sites instanceof List ? known_sites.collect { "--knownSites ${it}" }.join(' ') : "--knownSites ${known_sites}") : ""
     def known_sites_output_cmd = known_sites   ? "--out-recal-file ${prefix}.table" : ""
-    def interval_file_command  = interval_file ? (interval_file instanceof List ? interval_file.collect { "--interval-file ${it}" }.join(' ') : "--interval-file ${interval_file}") : ""
+    def interval_file_command  = 0
+    //def interval_file_command  = interval_file ? (interval_file instanceof List ? interval_file.collect { "--interval-file ${it}" }.join(' ') : "--interval-file ${interval_file}") : ""
 
     //def num_gpus   = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
     """
