@@ -52,21 +52,25 @@ process PARABRICKS_FQ2BAM {
 
     FovusOptVcpuPerGpu=\$((\$FovusOptVcpu / \$FovusOptGpu))
 
-    pbrun \\
-        fq2bam \\
-        --ref \$INDEX \\
-        ${in_fq_command} \\
-        --out-bam ${prefix}.${extension} \\
-        ${known_sites_command} \\
-        ${known_sites_output_cmd} \\
-        ${interval_file_command} \\
-        --num-gpus \$FovusOptGpu \\
-        --bwa-cpu-thread-pool \$FovusOptVcpuPerGpu \\
-        --memory-limit \$FovusOptVcpuMem \\
-        --monitor-usage \\
-        --gpuwrite \\
-        --gpusort \\
-        ${args}
+    #pbrun \\
+    #    fq2bam \\
+    #    --ref \$INDEX \\
+    #    ${in_fq_command} \\
+    #    --out-bam ${prefix}.${extension} \\
+    #    ${known_sites_command} \\
+    #    ${known_sites_output_cmd} \\
+    #    ${interval_file_command} \\
+    #    --num-gpus \$FovusOptGpu \\
+    #    --bwa-cpu-thread-pool \$FovusOptVcpuPerGpu \\
+    #    --memory-limit \$FovusOptVcpuMem \\
+    #    --monitor-usage \\
+    #    --gpuwrite \\
+    #    --gpusort \\
+    #    ${args}
+
+    # Temp skip this process
+    touch ${prefix}.${extension}
+    touch ${prefix}.${extension}.${extension_index}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

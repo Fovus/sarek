@@ -108,9 +108,9 @@ workflow BAM_VARIANT_CALLING_GERMLINE_ALL {
             cram,
             dict,
             fasta,
-            fasta_fai,
-            intervals
+            fasta_fai
         )
+            //intervals
 
         vcf_deepvariant = BAM_VARIANT_CALLING_DEEPVARIANT.out.vcf
         tbi_deepvariant = BAM_VARIANT_CALLING_DEEPVARIANT.out.tbi

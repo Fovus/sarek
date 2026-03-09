@@ -8,11 +8,13 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     container "nvcr.io/nvidia/clara/clara-parabricks:4.6.0-1"
 
     input:
-    tuple val(meta), path(input), path(index), path(intervals)
+    tuple val(meta), path(input), path(index)
     tuple val(meta2), path(fasta)
     tuple val(meta3), path(fai)
     tuple val(meta4), path(gzi)
-    tuple val(meta5), path(par_bed)
+
+    // tuple val(meta), path(input), path(index), path(intervals)
+    // tuple val(meta5), path(par_bed)
 
 
     output:
@@ -34,16 +36,18 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     //def args = task.ext.args ?: ''
     prefix = task.ext.prefix ?: "${meta.id}"
     //def output_file = args.contains("--gvcf") ? "${prefix}.g.vcf.gz" : "${prefix}.vcf.gz"
-    def interval_command = intervals        ? intervals.collect { intervals -> "--interval-file ${intervals}" }.join(' ') : ""
+    //def interval_command = intervals        ? intervals.collect { intervals -> "--interval-file ${intervals}" }.join(' ') : ""
 
     """
-    pbrun \\
-        deepvariant \\
-        --ref ${fasta} \\
-        --in-bam ${input} \\
-        --out-variants ${prefix}.vcf.gz \\
-        ${interval_command} \\
-        --num-gpus \$FovusOptGpu
+    # pbrun \\
+    #     deepvariant \\
+    #     --ref ${fasta} \\
+    #     --in-bam ${input} \\
+    #     --out-variants ${prefix}.vcf.gz \\
+    #     ${interval_command} \\
+    #     --num-gpus 1\$FovusOptGpu
+
+    echo "interval command ${interval_command}"
 
     cat <<-END_VERSIONS > versions.yml
 	"${task.process}":
