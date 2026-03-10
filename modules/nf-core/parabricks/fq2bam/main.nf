@@ -4,7 +4,7 @@ process PARABRICKS_FQ2BAM {
     label 'process_gpu'
     // needed by the module to run on a cluster because we need to copy the fasta reference, see https://github.com/nf-core/modules/issues/9230
     // Tested symlinked files on Fovus in BP creation and had no issues. Therefore this option shouldn't be considered required.
-    // stageInMode 'copy'
+    stageInMode 'copy'
 
     container "nvcr.io/nvidia/clara/clara-parabricks:4.6.0-1"
 
@@ -40,38 +40,39 @@ process PARABRICKS_FQ2BAM {
 
     def in_fq_command = meta.single_end ? "--in-se-fq ${reads}" : "--in-fq ${reads}"
     def extension     = "${output_fmt}"
-
+    def extension_index = "${output_fmt}" == "cram" ? "crai" : "bai"
     def known_sites_command    = known_sites   ? (known_sites instanceof List ? known_sites.collect { "--knownSites ${it}" }.join(' ') : "--knownSites ${known_sites}") : ""
     def known_sites_output_cmd = known_sites   ? "--out-recal-file ${prefix}.table" : ""
-    def interval_file_command  = 0
+    //def interval_file_command  = 0
     //def interval_file_command  = interval_file ? (interval_file instanceof List ? interval_file.collect { "--interval-file ${it}" }.join(' ') : "--interval-file ${interval_file}") : ""
 
     //def num_gpus   = task.accelerator ? "--num-gpus ${task.accelerator.request}" : ''
     """
     INDEX=`find -L ./ -name "*.amb" | sed 's/\\.amb\$//'`
-    cp ${fasta} \$INDEX
+    #cp ${fasta} \$INDEX
+    cp Homo_sapiens_assembly38.fasta \$INDEX
 
     FovusOptVcpuPerGpu=\$((\$FovusOptVcpu / \$FovusOptGpu))
 
-    #pbrun \\
-    #    fq2bam \\
-    #    --ref \$INDEX \\
-    #    ${in_fq_command} \\
-    #    --out-bam ${prefix}.${extension} \\
-    #    ${known_sites_command} \\
-    #    ${known_sites_output_cmd} \\
-    #    ${interval_file_command} \\
-    #    --num-gpus \$FovusOptGpu \\
-    #    --bwa-cpu-thread-pool \$FovusOptVcpuPerGpu \\
-    #    --memory-limit \$FovusOptVcpuMem \\
-    #    --monitor-usage \\
-    #    --gpuwrite \\
-    #    --gpusort \\
-    #    ${args}
+    pbrun \\
+        fq2bam \\
+        --ref \$INDEX \\
+        ${in_fq_command} \\
+        --out-bam ${prefix}.${extension} \\
+        ${known_sites_command} \\
+        ${known_sites_output_cmd} \\
+        --num-gpus \$FovusOptGpu \\
+        --bwa-cpu-thread-pool \$FovusOptVcpuPerGpu \\
+        --memory-limit \$FovusOptVcpuMem \\
+        --monitor-usage \\
+        --gpuwrite \\
+        --gpusort \\
+        ${args}
+
 
     # Temp skip this process
-    touch ${prefix}.${extension}
-    touch ${prefix}.${extension}.${extension_index}
+    #touch ${prefix}.${extension}
+    #touch ${prefix}.${extension}.${extension_index}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

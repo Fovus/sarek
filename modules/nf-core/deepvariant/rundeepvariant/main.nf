@@ -39,15 +39,13 @@ process DEEPVARIANT_RUNDEEPVARIANT {
     //def interval_command = intervals        ? intervals.collect { intervals -> "--interval-file ${intervals}" }.join(' ') : ""
 
     """
-    # pbrun \\
-    #     deepvariant \\
-    #     --ref ${fasta} \\
-    #     --in-bam ${input} \\
-    #     --out-variants ${prefix}.vcf.gz \\
-    #     ${interval_command} \\
-    #     --num-gpus 1\$FovusOptGpu
+    pbrun \\
+        deepvariant \\
+        --ref ${fasta} \\
+        --in-bam ${input} \\
+        --out-variants ${prefix}.vcf.gz \\
+        --num-gpus \$FovusOptGpu
 
-    echo "interval command ${interval_command}"
 
     cat <<-END_VERSIONS > versions.yml
 	"${task.process}":
